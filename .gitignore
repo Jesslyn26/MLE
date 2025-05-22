@@ -177,3 +177,9 @@ cython_debug/
 
 *.parquet/
 
+*lab_3
+
+*lab_1
+
+*lab_4
+
