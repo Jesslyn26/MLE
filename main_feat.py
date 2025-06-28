@@ -170,3 +170,5 @@ for date_str in dates_str_lst:
         gold_table_directory,
         spark
     )
+
+

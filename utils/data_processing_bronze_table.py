@@ -1,7 +1,6 @@
 import os
 import glob
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 import random
 from datetime import datetime, timedelta
@@ -20,7 +19,8 @@ def process_bronze_table(snapshot_date_str, bronze_lms_directory, spark):
     snapshot_date = datetime.strptime(snapshot_date_str, "%Y-%m-%d")
     
     # connect to source back end - IRL connect to back end source system
-    csv_file_path = "data/lms_loan_daily.csv"
+    csv_file_path = "/opt/airflow/data/lms_loan_daily.csv"
+    
 
     # load data - IRL ingest from back end source system
     df = spark.read.csv(csv_file_path, header=True, inferSchema=True).filter(col('snapshot_date') == snapshot_date)
@@ -39,7 +39,7 @@ def process_bronze_table_feat_attributes(snapshot_date_str, bronze_feat_attribut
     snapshot_date = datetime.strptime(snapshot_date_str, "%Y-%m-%d")
     
     # connect to source back end - IRL connect to back end source system
-    csv_file_path = "data/features_attributes.csv"
+    csv_file_path = "/opt/airflow/data/features_attributes.csv"
 
     # load data - IRL ingest from back end source system
     df = spark.read.csv(csv_file_path, header=True, inferSchema=True).filter(col('snapshot_date') == snapshot_date)
@@ -57,8 +57,8 @@ def process_bronze_table_feat_attributes(snapshot_date_str, bronze_feat_attribut
 def process_bronze_table_feat_clickstream(snapshot_date_str, bronze_feat_attributes_directory, spark):
     snapshot_date = datetime.strptime(snapshot_date_str, "%Y-%m-%d")
     
-    # Path to the clickstream CSV file
-    csv_file_path = "data/feature_clickstream.csv"
+    # Path to the clickstream CSV file (airflow data directory)
+    csv_file_path = "/opt/airflow/data/feature_clickstream.csv"
 
     # Load data and filter by snapshot_date
     df = spark.read.csv(csv_file_path, header=True, inferSchema=True).filter(col('snapshot_date') == snapshot_date)
@@ -77,7 +77,7 @@ def process_bronze_table_feat_financial(snapshot_date_str, bronze_feat_attribute
     snapshot_date = datetime.strptime(snapshot_date_str, "%Y-%m-%d")
     
     # Path to the clickstream CSV file
-    csv_file_path = "data/features_financials.csv"
+    csv_file_path = "/opt/airflow/data/features_financials.csv"
 
     # Load data and filter by snapshot_date
     df = spark.read.csv(csv_file_path, header=True, inferSchema=True).filter(col('snapshot_date') == snapshot_date)

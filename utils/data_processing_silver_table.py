@@ -112,8 +112,7 @@ def process_silver_table_feat_attributes(snapshot_date_str, bronze_attributes_di
     # Replace invalid age values (age < 0, age > 120, or NULL) with the mean age
     df = df.withColumn(
     "Age",
-    when((col("Age") < 0) | (col("Age") > 120) | (col("Age").isNull()), mean_age).otherwise(col("Age"))
-)
+    when((col("Age") < 0) | (col("Age") > 120) | (col("Age").isNull()), mean_age).otherwise(col("Age")))
 
     df = df.withColumn("Age", col("Age").cast("int"))
 

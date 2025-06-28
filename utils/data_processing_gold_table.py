@@ -11,7 +11,7 @@ import pyspark
 import pyspark.sql.functions as F
 import argparse
 
-from pyspark.sql.functions import col, when, regexp_replace, split,to_date, lit
+from pyspark.sql.functions import col, when, regexp_replace, split,to_date, lit, explode, array_contains
 from pyspark.sql.utils import AnalysisException
 from pyspark.sql.types import StringType, IntegerType, FloatType, DateType
 
@@ -117,6 +117,41 @@ def process_gold_table(snapshot_date_str, silver_clickstream_directory, silver_a
             when(col("occupation") == category, 1).otherwise(0)
         )
     gold_table_df = gold_table_df.drop("occupation")
+
+    # One-hot encode Payment_Behaviour
+    payment_behaviour_classes = gold_table_df.select("Payment_Behaviour").distinct().rdd.flatMap(lambda x: x).collect()
+    for category in payment_behaviour_classes:
+        gold_table_df = gold_table_df.withColumn(
+            f"Payment_Behaviour_{category.replace(' ', '_')}",
+            when(col("Payment_Behaviour") == category, 1).otherwise(0)
+        )
+    gold_table_df = gold_table_df.drop("Payment_Behaviour")
+
+    # One-hot encode Credit_Mix
+    credit_mix_classes = gold_table_df.select("Credit_Mix").distinct().rdd.flatMap(lambda x: x).collect()
+    for category in credit_mix_classes:
+        gold_table_df = gold_table_df.withColumn(
+            f"Credit_Mix_{category.replace(' ', '_')}",
+            when(col("Credit_Mix") == category, 1).otherwise(0)
+        )
+    gold_table_df = gold_table_df.drop("Credit_Mix")
+
+    # One-hot encode Type_of_Loan_Array
+    if "Type_of_Loan_Array" in gold_table_df.columns:
+        unique_loan_types = (
+            gold_table_df
+            .select(explode(col("Type_of_Loan_Array")).alias("Loan_Type"))
+            .distinct()
+            .rdd.flatMap(lambda x: x)
+            .collect()
+        )
+        for loan_type in unique_loan_types:
+            gold_table_df = gold_table_df.withColumn(
+                f"Loan_{loan_type.replace(' ', '_')}",
+                when(array_contains(col("Type_of_Loan_Array"), loan_type), 1).otherwise(0)
+            )
+        gold_table_df = gold_table_df.drop("Type_of_Loan_Array")
+    
 
     # Save the Gold Table
     gold_partition_name = f"gold_table_{snapshot_date_str.replace('-', '_')}.parquet"
