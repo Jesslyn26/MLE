@@ -1,5 +1,5 @@
 # last updated Mar 25 2025, 11:00am
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 # Set non-interactive mode for apt-get
 ENV DEBIAN_FRONTEND=noninteractive
@@ -20,6 +20,9 @@ WORKDIR /app
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
+
+# Switch to the airflow user before installing Python dependencies
+# USER airflow
 
 # Install Python dependencies (ensure that pyspark is in your requirements.txt,
 # or you can install it explicitly by uncommenting the next line)
